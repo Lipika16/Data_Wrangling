@@ -93,7 +93,7 @@ class Clean:
         'Ovarial cancer age indicated is after death.'
         self.org_data.loc[(self.org_data['Dead']==1) & (self.org_data['OvCa']>self.org_data['Age']),
                      'OvCa']=0
-    
+                         
 #ped=org_data['FamID'].value_counts()
 #org_data.fillna(0, inplace=True)
         

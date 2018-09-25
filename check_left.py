@@ -1,31 +1,6 @@
-'This person is older than their mother'
-
-
-
-
-'This person is older than their father'
-
- 
-
-'This person has an age difference of less than 10 years with the father.'
-'This person has an age difference of less than 10 years with the mother.'
-'This person and their mother have an age difference of 50 years or more.'
-
-
 import pandas as pd
-import numpy as np
-#org_data = pd.read_excel('Sharma_2018-07-24.xlsx', usecols='E:AJ')
-org =  pd.read_excel('../data/sample.xlsx')
-org.set_index('IndivID',inplace=True)
-def test(i,row):
-    mothID = row['MothID']
-    if mothID !=0:
-        print(i,org['Age'][mothID])
-        
-for i,row in org.iterrows():
-    test(i,row)
-'Death year indicated is before birth.'
-# -*- coding: utf-8 -*-
+org_data= pd.read_excel('../data/all_data.xlsx', usecols='E:AJ')
+backup_data=org_data
 
 'This woman has children with her father. Please check.'
 def sim_fath(ind_id,moth_id):
@@ -42,8 +17,6 @@ def fath_is_same(row):
         return False
 out=org_data.apply(fath_is_same,axis=1)
 org_data.loc[out,'FathID']=0
-' Father of the individual is set to 0 ' 
-
 
 
 'This man has children with his mother, please check.'
@@ -85,3 +58,16 @@ def parents_are_siblings(row):
 filtered=org_data.apply(parents_are_siblings,axis=1)
 org_data.loc[filtered,'FathID']=0
 org_data.loc[filtered,'MothID']=0
+
+'This person is older than their mother'
+
+
+
+
+'This person is older than their father'
+
+'Father of the individual is set to 0 ' 
+
+'This person has an age difference of less than 10 years with the father.'
+'This person has an age difference of less than 10 years with the mother.'
+'This person and their mother have an age difference of 50 years or more.'

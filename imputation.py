@@ -3,66 +3,72 @@
 
 @author: Lipika Sharma
 """
-org_data.isnull().sum()
-check_year=int((org_data['Age']+org_data['Yob']).mode()[0])
+class Impute:
+    
+    def __init__(self,org_data):
+        self.org_data = org_data
+    
+    def impute_age(self):
+        check_year=int((self.org_data['Age']+self.org_data['Yob']).mode()[0])
+        self.org_data.loc[self.org_data.Age.isnull(), 'Age']=check_year-self.org_data['Yob']
 
-'FEW ASSUMPTIONS'
-'1 IMPUTING AGE'
-org_data.loc[org_data.Age.isnull(), 'Age']=check_year-org_data['Yob']
-
-
-'2 IMPUTING DEAD'
-org_data.loc[(org_data.Dead.isnull()) &
-             (org_data['1stBrCa']!=0),'Dead']=1
+    def impute_dead(self):
+        self.org_data.loc[(self.org_data.Dead.isnull()) &
+                     (self.org_data['1stBrCa']!=0),'Dead']=1
              
-org_data.loc[(org_data.Dead.isnull()) & (org_data['Age']>85),
-             'Dead']=1
+        self.org_data.loc[(self.org_data.Dead.isnull()) & 
+                          (self.org_data['Age']>85),'Dead']=1
              
-org_data['Dead'].fillna(0, inplace=True)
+        self.org_data['Dead'].fillna(0, inplace=True)
+
+        self.org_data.loc[self.org_data['Age']>85, 'Age']=85
+
+    def impute_Sex(self):
+        self.org_data.loc[(self.org_data.Sex.isnull()) &
+                     (self.org_data['IndivID'].isin(self.org_data['MothID'])),'Sex']='F'            
+        self.org_data.loc[(self.org_data.Sex.isnull()) &
+                     (self.org_data['IndivID'].isin(self.org_data['FathID'])),'Sex']='M'    
+        
+        self.org_data.loc[(self.org_data['Sex'].isnull()), 'Sex']='F'
 
 
-org_data.loc[org_data['Age']>85, 'Age']=85
+    def impute_brca1(self):
+        #brca1_miss=self.org_data[self.org_data['1stBrCa'].isnull()]
+        self.org_data['1stBrCa'].fillna(0, inplace=True)
 
+    def impute_brca2(self):
+        #brca2_miss=self.org_data[self.org_data['2ndBrCa'].isnull()]
+        self.org_data.loc[self.org_data['2ndBrCa'].isnull(), '2ndBrCa']=0
 
-'3 IMPUTING SEX'
-org_data.loc[(org_data.Sex.isnull()) &
-             (org_data['IndivID'].isin(org_data['MothID'])),'Sex']='F'
+    def impute_OvCa(self):
+        #ovca_miss=self.org_data[self.org_data['OvCa'].isnull()]
+        self.org_data.loc[self.org_data['OvCa'].isnull(), 'OvCa']=0
 
-            
-org_data.loc[(org_data.Sex.isnull()) &
-             (org_data['IndivID'].isin(org_data['FathID'])),'Sex']='M'    
+    def impute_proca(self):
+        #proca_miss=self.org_data[self.org_data['ProCa'].isnull()]
+        self.org_data.loc[self.org_data['ProCa'].isnull(), 'ProCa']=0
 
-org_data.loc[(org_data['Sex'].isnull()), 'Sex']='F'
+    def impute_panca(self):
+        #panca_miss=self.org_data[self.org_data['PanCa'].isnull()]
+        self.org_data.loc[self.org_data['PanCa'].isnull(), 'PanCa']=0
 
+    def impute_data(self):
+        self.impute_age()
+        self.impute_dead()
+        self.impute_Sex()
+        self.impute_brca1()
+        self.impute_brca2()
+        self.impute_OvCa()
+        self.impute_proca()
+        self.impute_panca()
 
-'4 IMPUTING 1STBRCA'
-brca1_miss=org_data[org_data['1stBrCa'].isnull()]
-'''
+        
+        
+        
+'''org_data.fillna(0, inplace=True)
 org_data.loc[(org_data['1stBrCa'].isnull())&
-             ((org_data['BRCA1r']=='P')|
-             (org_data['BRCA2r']=='P')|
-             (org_data['PALB2r']=='P')|
-             (org_data['ATMr']=='P')|
-             (org_data['CHEK2r']=='P')), '1stBrCa']=('AU').astype(int)
-'''
-org_data['1stBrCa'].fillna(0, inplace=True)
-
-'5 IMPUTING 2NDBRCA'
-brca2_miss=org_data[org_data['2ndBrCa'].isnull()]
-org_data.loc[org_data['2ndBrCa'].isnull(), '2ndBrCa']=0
-
-'6 IMPUTING OVCA'
-ovca_miss=org_data[org_data['OvCa'].isnull()]
-org_data.loc[org_data['OvCa'].isnull(), 'OvCa']=0
-
-'7 IMPUTING PROCA'
-proca_miss=org_data[org_data['ProCa'].isnull()]
-org_data.loc[org_data['ProCa'].isnull(), 'ProCa']=0
-
-'8 IMPUTING PANCA'
-panca_miss=org_data[org_data['PanCa'].isnull()]
-org_data.loc[org_data['PanCa'].isnull(), 'PanCa']=0
-
-
-#org_data.fillna(0, inplace=True)
-
+                     ((org_data['BRCA1r']=='P')|
+                     (org_data['BRCA2r']=='P')|
+                     (org_data['PALB2r']=='P')|
+                     (org_data['ATMr']=='P')|
+                     (org_data['CHEK2r']=='P')), '1stBrCa']=('AU').astype(int)'''
