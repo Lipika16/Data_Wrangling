@@ -20,20 +20,45 @@ palb_risk=out_data_v4[out_data_v4['IndivID'].isin(map(str,list(palb_ind)))]
 chek_risk=out_data_v4[out_data_v4['IndivID'].isin(map(str,list(chek_ind)))]
 atm_risk=out_data_v4[out_data_v4['IndivID'].isin(map(str,list(atm_ind)))]
 
+
+palb_risk_v3=v3[v3['IndivID'].isin(map(str,list(palb_ind)))]
+chek_risk_v3=v3[v3['IndivID'].isin(map(str,list(chek_ind)))]
+atm_risk_v3=v3[v3['IndivID'].isin(map(str,list(atm_ind)))]
+
+
 palb_risk['Version'] = palb_risk['Version'].str.replace('v4beta14','PALB2')
 chek_risk['Version'] = chek_risk['Version'].str.replace('v4beta14','CHEK2')
 atm_risk['Version'] = atm_risk['Version'].str.replace('v4beta14','ATM')
 
-mer=pd.concat([chek_risk,atm_risk,palb_risk], axis=0)
+mer=pd.concat([v3,chek_risk,atm_risk,palb_risk], axis=0)
 
 mer['Age']=mer['Age'].astype('int64')
 mer['age_range']=pd.cut(mer['Age'],bins=[20,30,40,50,60,70,80])
 mer['BrCaRisk%']=mer['BrCaRisk%'].astype('float')
 
-mer=mer.rename({'Version':'Genes'}, axis='columns')
+mer=mer.rename({'Version':'Genes_version'}, axis='columns')
+
+
+bx = sns.boxplot(x="age_range", y="BrCaRisk%", hue="Genes_version",
+                  data=mer, palette='Set2', sym='')
+plt.savefig('BOX_all.png',dpi=500)
+
+
+g = sns.lmplot(x="Age", y="BrCaRisk%", col="Genes", hue="Genes",
+                data=mer, height=6, aspect=.4, x_jitter=.1)
 
 ax = sns.scatterplot(x=("Age"), y="BrCaRisk%", hue="Genes",
                   data=mer, palette="muted")
+
+sns.relplot(x="Age", y="BrCaRisk%", hue="Status", size="Status",
+            sizes=(40, 400), alpha=.5, palette="muted",
+            height=6, data=mer)
+plt.savefig('scatterplot.png',dpi=500)
+plt.close()
+
+sns.catplot(x="Age", y="BrCaRisk%", hue="Genes", kind="swarm", data=mer);
+
+
 
 
 r = pd.pivot_table(mer,values='BrCaRisk%',columns=['Genes'], index=['age_range'])
@@ -122,10 +147,29 @@ affec=all_data.loc[(all_data['Target']==1)&(all_data['1stBrCa']!=0), 'IndivID']
 non_affec=all_data.loc[(all_data['Target']==1)&(all_data['1stBrCa']==0), 'IndivID']
 
 
+aff=out_data_v4[out_data_v4['IndivID'].isin(map(str,list(affec)))]
+non=out_data_v4[out_data_v4['IndivID'].isin(map(str,list(non_affec)))]
+
+aff['Version'] = aff['Version'].str.replace('v4beta14','Affected')
+non['Version'] = non['Version'].str.replace('v4beta14','Non-Affected')
+
+mer=pd.concat([aff,non], axis=0)
+
+mer['Age']=mer['Age'].astype('int64')
+mer['age_range']=pd.cut(mer['Age'],bins=[20,30,40,50,60,70,80])
+mer['BrCaRisk%']=mer['BrCaRisk%'].astype('float')
+
+mer=mer.rename({'Version':'Status'}, axis='columns')
+
+bx = sns.boxplot(x="age_range", y="BrCaRisk%", hue="Status",
+                  data=mer, palette="muted", sym='')
+plt.savefig('status.png',dpi=500)
+
+male=all_data.loc[(all_data['Target']==1)&(all_data['Sex']=='M'), 'IndivID']
+female=all_data.loc[(all_data['Target']==1)&(all_data['Sex']=='F'), 'IndivID']
 
 
-male=all_data.loc[(all_data['Target']==1)&(all_data['Sex']=='M')]
-female=all_data.loc[(all_data['Target']==1)&(all_data['Sex']=='F')]
+
 
 
 #Histogram showing the number of individuals (unique) that a family has 
