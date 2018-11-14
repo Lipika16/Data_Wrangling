@@ -107,5 +107,5 @@ mer=pd.concat([stress2,stress1], axis=0)
 bx = sns.boxplot(x="age_range", y="BrCaRisk%",hue='Version',
                   data=mer,palette='colorblind', sym='')
 bx.set(xlabel='Age Range', ylabel='Risk')
-plt.savefig('BoxPlot13.png',dpi=500)
+plt.savefig('BoxPlot14.png',dpi=500)
 
