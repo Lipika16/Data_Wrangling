@@ -10,7 +10,7 @@ Created on Fri Aug  3 00:04:34 2018
 #org_data = pd.read_excel('Sharma_2018-07-24.xlsx', usecols='E:AJ')
 #org_data= pd.read_excel('../data/sample.xlsx')
 
-#org_data=  pd.read_excel('data/all_data.xlsx', usecols='E:AJ')
+org_data=  pd.read_excel('../data/all_data.xlsx', usecols='E:AJ')
 #org_data.set_index('Name', inplace=True)
  
 

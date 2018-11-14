@@ -7,28 +7,47 @@ Created on Sat Sep  8 11:12:10 2018
 """
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
 #import epipy
 
 all_data = pd.read_excel('data/cleaned_data.xlsx')
-#tar=all_data.loc[all_data['Target']==1]
+tar=all_data.loc[all_data['Target']==1]
 
 palb_ind=all_data.loc[(all_data['PALB2r']=='P')&(all_data['Target']==1), 'IndivID']
 chek_ind=all_data.loc[(all_data['CHEK2r']=='P')&(all_data['Target']==1),'IndivID']
 atm_ind=all_data.loc[(all_data['ATMr']=='P')&(all_data['Target']==1),'IndivID']
 
 palb_risk=out_data_v4[out_data_v4['IndivID'].isin(map(str,list(palb_ind)))]
+palb_risk['Version'] = palb_risk['Version'].str.replace('v4beta14','Version4')
+
 chek_risk=out_data_v4[out_data_v4['IndivID'].isin(map(str,list(chek_ind)))]
 atm_risk=out_data_v4[out_data_v4['IndivID'].isin(map(str,list(atm_ind)))]
 
-
 palb_risk_v3=v3[v3['IndivID'].isin(map(str,list(palb_ind)))]
+palb_risk_v3['Version'] = palb_risk_v3['Version'].str.replace('v3','Version3')
+
 chek_risk_v3=v3[v3['IndivID'].isin(map(str,list(chek_ind)))]
 atm_risk_v3=v3[v3['IndivID'].isin(map(str,list(atm_ind)))]
 
+mer_atm = pd.concat([atm_risk_v3, atm_risk], axis=0)
+mer_palb = pd.concat([palb_risk_v3, palb_risk], axis=0)
+mer_chek = pd.concat([palb_risk_v3, palb_risk], axis=0)
+
+bx = sns.boxplot(x="age_range", y="BrCaRisk%", hue="Version",
+                  data=mer_palb,palette='colorblind', sym='').set_title('Breast Cancer Risks for PALB2 Mutation Carriers')
+plt.savefig('thesis_palb2carriers',dpi=500)
 
 palb_risk['Version'] = palb_risk['Version'].str.replace('v4beta14','PALB2')
 chek_risk['Version'] = chek_risk['Version'].str.replace('v4beta14','CHEK2')
 atm_risk['Version'] = atm_risk['Version'].str.replace('v4beta14','ATM')
+
+
+
+
+
+
+
+
 
 mer=pd.concat([v3,chek_risk,atm_risk,palb_risk], axis=0)
 
@@ -149,6 +168,35 @@ non_affec=all_data.loc[(all_data['Target']==1)&(all_data['1stBrCa']==0), 'IndivI
 
 aff=out_data_v4[out_data_v4['IndivID'].isin(map(str,list(affec)))]
 non=out_data_v4[out_data_v4['IndivID'].isin(map(str,list(non_affec)))]
+
+
+palb_ind=all_data.loc[(all_data['PALB2r']=='P')&(all_data['Target']==1), 'IndivID']
+chek_ind=all_data.loc[(all_data['CHEK2r']=='P')&(all_data['Target']==1),'IndivID']
+atm_ind=all_data.loc[(all_data['ATMr']=='P')&(all_data['Target']==1),'IndivID']
+
+palb_risk=non[non['IndivID'].isin(map(str,list(palb_ind)))]
+chek_risk=non[non['IndivID'].isin(map(str,list(chek_ind)))]
+atm_risk=non[non['IndivID'].isin(map(str,list(atm_ind)))]
+
+palb_risk['Version'] = palb_risk['Version'].str.replace('v4beta14','PALB2')
+chek_risk['Version'] = chek_risk['Version'].str.replace('v4beta14','CHEK2')
+atm_risk['Version'] = atm_risk['Version'].str.replace('v4beta14','ATM')
+
+mer=pd.concat([chek_risk,atm_risk,palb_risk], axis=0)
+
+mer['Age']=mer['Age'].astype('int64')
+mer['age_range']=pd.cut(mer['Age'],bins=[20,30,40,50,60,70,80])
+mer['BrCaRisk%']=mer['BrCaRisk%'].astype('float')
+
+mer=mer.rename({'Version':'Genes_version'}, axis='columns')
+
+
+bx = sns.boxplot(x="age_range", y="BrCaRisk%", hue="Genes_version",
+                  data=mer, palette='bright', sym='').set_title('Risks for non-affected individuals ')
+plt.savefig('affec.png',dpi=500)
+
+
+
 
 aff['Version'] = aff['Version'].str.replace('v4beta14','Affected')
 non['Version'] = non['Version'].str.replace('v4beta14','Non-Affected')

@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Oct  2 10:04:29 2018
-
-@author: Lipika Sharma
-"""
-
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -13,17 +6,39 @@ import matplotlib.pyplot as plt
 
 all_data = pd.read_excel('data/cleaned_data.xlsx')
 
-#dataframe containing all individuals with breast cancer and the tragters
-first_deg=all_data.loc[(all_data['1stBrCa']!=0)]
-target=all_data.loc[(all_data['Target']==1) & (all_data['1stBrCa']==0)]
-merge=pd.concat([first_deg,target], axis=0)
+targets = all_data.loc[all_data['Target']==1, ('IndivID')]
+tar_mom = all_data.loc[all_data['Target']==1, ('MothID')]
+tar_fath = all_data.loc[all_data['Target']==1, ('FathID')]
 
-ped_mem=merge['FamID'].value_counts()
+mothers = all_data.loc[(all_data['Target']==1) & 
+                         (all_data['IndivID'].isin(all_data['MothID'])), 'IndivID']
+
+mothers = mothers.to_frame().reset_index()
+mothers=mothers.rename({'IndivID':'MothID'}, axis='columns')
+
+child=all_data[all_data['MothID'].isin(map(str,mothers['MothID']))]
+all_child=child['IndivID']
+
+
+sibling=all_data[all_data['MothID'].isin(map(str,list(tar_mom)))]
+sibling = sibling.drop(sibling[sibling.MothID == 0].index)
+all_sib=sibling['IndivID']
+
+
+merge=pd.concat([targets,tar_mom,tar_fath, all_child,all_sib], axis=0)
+merge=merge.rename("IndivID")
+
+fir_deg_ped=all_data[all_data['IndivID'].isin(map(str,list(merge)))]
+
+affec=fir_deg_ped.loc[fir_deg_ped['1stBrCa']!=0]
+
+ped_mem=affec['FamID'].value_counts()
 ped_mem = ped_mem.to_frame().reset_index()
 ped_mem=ped_mem.rename({'index':'FamID','FamID':'Affected'}, axis='columns')
 ped_mem=ped_mem.set_index('FamID')
 ped_mem['FamID']=ped_mem.index
 ped_mem=ped_mem['Affected'] - 1
+
 
 out_data_v4=out_data_v4.set_index('FamID')
 check = pd.merge(out_data_v4,ped_mem[['Affected']],on='FamID')
@@ -52,6 +67,6 @@ mer=mer.rename({'Version':'Genes_version'}, axis='columns')
 
 
 bx = sns.boxplot(x="Affected", y="BrCaRisk%", hue="Genes_version",
-                  data=mer, palette='colorblind', sym='').set_title('Family burden')
+                  data=mer, palette='bright', sym='').set_title('First Degree Relatives')
 plt.savefig('BOX_all.png',dpi=500)
 
